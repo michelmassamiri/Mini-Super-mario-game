@@ -28,7 +28,7 @@ static unsigned long get_time (void)
 int timer_init (void)
 {
   // TODO
-
+ /*
   struct sigaction sa;
   sigset_t mask, oldmask;
   pthread_t* tid;
@@ -39,7 +39,7 @@ int timer_init (void)
 
   sigprocmask(SIG_BLOCK, &mask, &oldmask);
   sigaction()
-
+  */
   return 0; // Implementation not ready
 }
 
@@ -54,6 +54,7 @@ void* thread(void *arg)
     while(true)
       sigsuspend(set_of_mask) : le thread va blocker le programe jusqu'a un signal qui n'est pas dans set_of_mask arrive.
     */
+    return NULL;
 }
 
 #endif
