@@ -184,9 +184,9 @@ int main(int argc, char * argv[])
 		close(tmp_file);
 
 		if(fork() == 0)
-		execl("rm", "rm", argv[1], NULL);
+		    execl("rm", "rm", argv[1], NULL);
 		else
-		wait(NULL);
+		    wait(NULL);
 		execlp("mv", "mv", "tmp", argv[1]);
 	}
 
@@ -236,7 +236,48 @@ int main(int argc, char * argv[])
 		}
 		write(tmp_file, &sdl, sizeof(char));
 
-		for(int i = 0; i < nb_obj)
+        int len, des, col, gen, sol, fra;
+        char *name;
+		for(int i = 0, j = 0; i < nb_obj; ++i)
+		{
+            read(file, &len, sizeof(int));
+            name = malloc(len * sizeof(char));
+            read(file, name, len*sizeof(char));
+
+            read(file, &fra, sizeof(int));
+            read(file, &sol, sizeof(int));
+            read(file, &des, sizeof(int));
+            read(file, &col, sizeof(int));
+            read(file, &gen, sizeof(int));
+            read(file, &trash, sizeof(char));
+
+            if(willuse[j] != i)
+            {
+                free(name);
+                continue;
+            }
+
+            write(tmp_file, &len, sizeof(int));
+            write(tmp_file, name, len*sizeof(char));
+            write(tmp_file, &fra, sizeof(int));
+            write(tmp_file, &sol, sizeof(int));
+            write(tmp_file, &des, sizeof(int));
+            write(tmp_file, &col, sizeof(int));
+            write(tmp_file, &gen, sizeof(int));
+            write(tmp_file, &sdl, sizeof(char));
+
+            ++j;
+            free(name);
+		}
+
+        close(file);
+        close(tmp_file);
+
+        if(fork() == 0)
+            execl("rm", "rm", argv[1], NULL);
+        else
+            wait(NULL);
+        execlp("mv", "mv", "tmp", argv[1]);
 	}
 
 
