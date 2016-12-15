@@ -85,16 +85,11 @@ int main(int argc, char * argv[])
 		int tmp;
 		tmp = atoi(argv[3]);
 		if(strcmp(argv[2], "--setwidth"))
-		width = tmp;
+			width = tmp;
 		if(strcmp(argv[2], "--setheight"))
-		height = tmp;
+			height = tmp;
 
-		if(fork() == 0)
-		execlp("cp", "cp", argv[1], "tmp", NULL);
-		else
-		wait(NULL);
-
-		int tmp_file =  open("tmp", O_RDWR | O_TRUNC, 0777);
+		int tmp_file =  open("tmp", O_RDWR | O_TRUNC | O_CREAT, 0777);
 
 		write(tmp_file, &height, sizeof(int));
 		write(tmp_file, &sdl, sizeof(char));
@@ -133,16 +128,11 @@ int main(int argc, char * argv[])
 	if(strcmp(argv[2], "--setobjects"))
 	{
 		if(((argc - 3) % 6) != 0)
-		usage(1);
+			usage(1);
 		if(((argc-3)/6) < nb_obj)
-		usage(2);
+			usage(2);
 
-		if(fork() == 0)
-		execlp("cp", "cp", argv[1], "tmp", NULL);
-		else
-		wait(NULL);
-
-		int tmp_file =  open("tmp", O_RDWR | O_TRUNC, 0777);
+		int tmp_file =  open("tmp", O_RDWR | O_TRUNC | O_CREAT, 0777);
 		char sdl = '\n';
 		write(tmp_file, &height, sizeof(int));
 		write(tmp_file, &sdl, sizeof(char));
@@ -198,6 +188,55 @@ int main(int argc, char * argv[])
 		else
 		wait(NULL);
 		execlp("mv", "mv", "tmp", argv[1]);
+	}
+
+
+	if(strcmp(argv[2], "--pruneobjects"))
+	{
+		int *areused = malloc(nb_obj * sizeof(int)), willuse = malloc(nb_obj * sizeof(int)), nb_obj_rly_used = 0;
+
+		for(int i = 0; i < nb_obj; ++i)
+		{
+			areused[i] = 0;
+			willuse[i] = i;
+		}
+
+		for(int i  =0; i < height*width; ++i)
+		{
+			read(file, &objs, sizeof(int));
+			areused[objs] = 1;
+		}
+
+		for(int i = 0; i < nb_obj; ++i)
+		{
+			++nb_obj_rly_used;
+			if(areused[i] == 0)
+			{
+				--nb_obj_rly_used;
+				for(int j = i; j < nb_obj-1; ++j)
+					willuse[j] = j+1;
+					willuse[nb_obj - 1] = 0;
+			}
+		}
+
+		lseek(file, 0, SEEK_SET);
+		int tmp_file =  open("tmp", O_RDWR | O_TRUNC | O_CREAT, 0777);
+		char sdl = '\n';
+		write(tmp_file, &height, sizeof(int));
+		write(tmp_file, &sdl, sizeof(char));
+		write(tmp_file, &width, sizeof(int));
+		write(tmp_file, &sdl, sizeof(char));
+		write(tmp_file, &nb_obj, sizeof(int));
+		write(tmp_file, &sdl, sizeof(char));
+
+		for(int i  =0; i < height*width; ++i)
+		{
+			read(file, &objs, sizeof(int));
+			write(tmp_file, &willuse[objs], sizeof(int));
+		}
+		write(tmp_file, &sdl, sizeof(char));
+
+		for(int i = 0; i < nb_obj)
 	}
 
 
