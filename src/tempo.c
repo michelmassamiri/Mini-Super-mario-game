@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include <SDL.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -24,22 +25,54 @@ static unsigned long get_time (void)
 
 #ifdef PADAWAN
 
+void handler(int sig)
+{
+  printf("le thread qui a appelé a le numéro %lu\n", pthread_self());
+}
+
+void* demon(void *arg)
+{
+    struct sigaction sa;
+    sa.sa_flags = 0;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_handler = handler;
+
+    sigaction(SIGALRM, &sa, NULL);
+
+    while(1)
+      sigsuspend(&sa.sa_mask); //: le thread va blocker le programe jusqu'a un signal qui n'est pas dans set_of_mask arrive.
+
+    return NULL;
+}
+
 // timer_init returns 1 if timers are fully implemented, 0 otherwise
 int timer_init (void)
 {
   // TODO
- /*
-  struct sigaction sa;
-  sigset_t mask, oldmask;
-  pthread_t* tid;
+  pthread_t tid;
+  struct itimerval timer;
 
-  sa.sa_flags = 0;
-  sigemptyset(&sa.sa_mask);
-  sa.sa_handler = handler;
+  //configuer le timer
+  timer.it_value.tv_sec = 0;
+  timer.it_value.tv_usec = 150000;
+  timer.it_interval.tv_sec = 0;
+  timer.it_interval.tv_usec = 150000;
 
-  sigprocmask(SIG_BLOCK, &mask, &oldmask);
-  sigaction()
-  */
+  //créer le thread
+  pthread_create(&tid, NULL, demon, NULL);
+
+  //blocker le SIGALRM dans tous les autres threads
+  sigset_t mask;
+  sigemptyset(&mask);
+  sigaddset(&mask, SIGALRM);
+  sigprocmask(SIG_BLOCK, &mask, NULL);
+
+  setitimer(ITIMER_REAL, &timer, NULL);
+  setitimer(ITIMER_REAL, &timer, NULL);
+  setitimer(ITIMER_REAL, &timer, NULL);
+  setitimer(ITIMER_REAL, &timer, NULL);
+  setitimer(ITIMER_REAL, &timer, NULL);
+
   return 0; // Implementation not ready
 }
 
@@ -48,13 +81,5 @@ void timer_set (Uint32 delay, void *param)
   // TODO
 }
 
-void* thread(void *arg)
-{
-    /*
-    while(true)
-      sigsuspend(set_of_mask) : le thread va blocker le programe jusqu'a un signal qui n'est pas dans set_of_mask arrive.
-    */
-    return NULL;
-}
 
 #endif
