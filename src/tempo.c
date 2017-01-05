@@ -29,6 +29,7 @@ static void add_to_list(timer_list *list, timer_for_param *tfp)
   //pthread_mutex_lock(&mutex);
   if(list->value == NULL)
   {
+    list->value = malloc(sizeof(timer_for_param));
     list->value = tfp;
   }
   else
@@ -38,6 +39,7 @@ static void add_to_list(timer_list *list, timer_for_param *tfp)
       list = list->next;
 
     timer_list *tmp2 = malloc(sizeof(tmp2));
+    tmp2->value = malloc(sizeof(timer_for_param));
 
     tmp2->value = tfp;
     tmp2->next = list->next;
@@ -50,7 +52,7 @@ static void add_to_list(timer_list *list, timer_for_param *tfp)
 
 static void remove_from_list(timer_list *list)
 {
-  //pthread_mutex_lock(&mutex);
+  pthread_mutex_lock(&mutex);
   if(list->next != NULL)
   {
     timer_list *tmp = list;
@@ -63,7 +65,7 @@ static void remove_from_list(timer_list *list)
     free(list->value);
     list->value = NULL;
   }
-  //pthread_mutex_unlock(&mutex;
+  pthread_mutex_unlock(&mutex);
 }
 
 
@@ -89,7 +91,7 @@ static unsigned long get_time (void)
 
 void handler(int sig)
 {
-  //pthread_mutex_lock(&mutex);
+  pthread_mutex_lock(&mutex);
 
   sdl_push_event(TIMER->value->param);
   printf ("sdl_push_event(%p) appelée au temps %ld\n", TIMER->value->param, get_time ());
@@ -104,7 +106,7 @@ void handler(int sig)
 
     timer_launch((Uint32)(et-ct)/1000);
   }
-  //pthread_mutex_unlock(&mutex);
+  pthread_mutex_unlock(&mutex);
 
 
 }
@@ -189,7 +191,7 @@ void timer_set (Uint32 delay, void *param)
   //TIMER->value = malloc(sizeof(timer_for_param));
   //TIMER->value->param = param;
   //*
-  //pthread_mutex_lock(&mutex_timer_set);
+  pthread_mutex_lock(&mutex_timer_set);
 
   timer_for_param *t = malloc(sizeof(timer_for_param));
   t->param = param;
@@ -201,7 +203,7 @@ void timer_set (Uint32 delay, void *param)
   unsigned long d = (et-ct)/1000;
 
   timer_launch(d);
-  //pthread_mutex_unlock(&mutex_timer_set);
+  pthread_mutex_unlock(&mutex_timer_set);
   //*/
   //timer_launch(delay);
 }
