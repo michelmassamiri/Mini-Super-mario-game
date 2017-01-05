@@ -29,4 +29,42 @@ La gestion des temporisateur est utilisé pour pouvoir gerer des éléments du j
 
 \newpage
 \section{Deuxième partie: Gestion des temporisateurs}
+
+Pour cette partie, on avait travaillé dans le fichier source «tempo.c» qui contient les fonctions: 
+
+‘timer_init’ ayant pour mission, l’initialisation de toutes les variables dont on aura besoin dans la suite, ainsi de créer un ‘thread’ qui doit être le seul thread recevant le signal SIGALRM. 
+
+‘timer_set’ qui permet d’armer les temporisateurs avec des différents délais.
+\subsection{Démon récepteur de signaux}
+
+Afin de pouvoir lancer le thread Démon qui devrait être le seul à recevoir SIGALRM, on avait configuré pour cette partie un temporisateur ayant un délai pour deux seconds, ensuite le thread est lancé avec NULL comme des paramètres.
+
+Dans le thread Démon, on initialise le traitant du signal SIGALRM qui est la fonction :
+
+void handler(int sig)
+
+En effet, chaque thread hérite du processus principal le masque des signaux. Donc pour bloquer SIGALRM dans tous les autres threads, il suffit de définir un masque de signaux qu’on lui ajoute SIGALRM et donc bloquer tous les autres threads qui vont être lancés après Démon.
+
+Ensuite, le thread Démon sera bloqué en utilisant ‘sigsuspend’ tant qu’il reçoit pas un SIGALRM.
+Dès que Démon reçoit le signal SIGALRM, il appelle la fonction ‘handler’ étant le traitant qui devrait effectivement afficher le numéro du thread qui l’a appelé.
+
+\subsection{Implémentation simple}
+
+En considérant qu’il n’y a qu’un seul temporisateur armé à tout instant, donc on n’a pas besoin de gérer et de maintenir l’échéancier complet. 
+
+Tout d’abord, dans la fonction ‘timer_set’, on initialise notre temporisateur avec les valeurs:
+
+struct itimerval timer ;
+
+timer.it_value.tv_sec = 0 ;
+timer.it_value.tv_usec = 0 ;
+timer.it_interval.tv_sec = 0 ;
+timer.it_interval.tv_usec = 0 ;
+
+Et afin d’envoyer le signal SIGALRM au bon moment, une boucle ‘while(delay ≥ 1000)’ était nécessaire. Donc, chaque fois qu’on rentre dans la boucle on souscrit 1000 de ‘delay’, et on incrémente  ‘timer.it_value.tv_sec’ par 1. Au final, ‘timer.it_value.tv_sec’ est égale à ‘delay * 1000’.
+Ce qui nous permet d’envoyer le signal SIGALRM dans le délai passé en paramètre.
+
+Alors pour pouvoir appeler la fonction ‘sdl_push_event’ avec la bonne paramètre ‘param’, on avait ajouté une variable globale dans le fichier source «tempo.c» qui à chaque fois qu’on appelle timer_set, la variable globale ‘PARAM’ sauvegarde la nouvelle valeur de param passée en paramètre dans la fonction timer_set. 
+Ensuite, on appelle l’instruction ‘printf’ dans la fonction traitant avec la variable ‘PARAM’.
+
 \end{document}
