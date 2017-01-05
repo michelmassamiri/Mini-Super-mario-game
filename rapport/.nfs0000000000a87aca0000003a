@@ -1,7 +1,7 @@
 \documentclass{article}
 
-\usepackage[utf8]{inputenc}    
-\usepackage[T1]{fontenc}
+\usepackage[latin1]{inputenc}    
+\usepackage[utf8]{fontenc}
 \usepackage[francais]{babel}     
 
 
@@ -24,6 +24,6 @@ Le système de sauvegarde doit être en mesure de sauvegarder les objets que l'o
 
 Le système de gestion de sauvegarde à pour but d'avoir des informations sur les cartes sauvegardées (connaitre leurs hauteur, largeurs, nombre d'objets différents) ainsi que de faires quelques modifications.
 
-La gestion des temporisateur est utilisé pour pouvoir gerer des éléments du jeu qui sont activé et ont une action diféré dans le jeu (exemple : la bombe se lance et explose deux secondes plus
+La gestion des temporisateur est utilisé pour pouvoir gerer des éléments du jeu qui sont activé et ont une action diféré dans le jeu (exemple : la bombe se lance et explose deux secondes plus tard).
 
 \end{document}
