@@ -1,0 +1,44 @@
+\documentclass{article}
+
+\usepackage[utf8]{inputenc}    
+\usepackage[T1]{fontenc}
+\usepackage[francais]{babel}     
+
+
+\title{Rapport du projet de programmation systeme}
+\date{06/01/2017}
+\author{Demoulins Louis \and Massamiri Michel}
+
+\begin{document}
+
+
+\maketitle
+
+
+\newpage
+\section{Introduction}
+
+Le présent projet a été réalisé dans le cadre de l'unité d'enseignement Programmation Système de l'université de Bordeaux. Il consiste à creer une fonction de sauvegarde et de gestions de celles ci, ainsi que de la gestion de temporisateurs au sein d'un jeu.
+
+Le système de sauvegarde doit être en mesure de sauvegarder les objets que l'on place sur la carte et de pouvoir les recharger après tel quel. Ainsi on peut creer plusieurs niveaux dans le jeu sans avoir à recommencer la création de la carte à chaque lancement du jeu.
+
+Le système de gestion de sauvegarde à pour but d'avoir des informations sur les cartes sauvegardées (connaitre leurs hauteur, largeurs, nombre d'objets différents) ainsi que de faires quelques modifications.
+
+La gestion des temporisateur est utilisé pour pouvoir gerer des éléments du jeu qui sont activé et ont une action diféré dans le jeu (exemple : la bombe se lance et explose deux secondes plus
+
+\newpage
+\section{Première partie: Gestion des Sauvegardes}
+
+\subsection{Sauvegarde}
+Pour la sauvegarde nous avons principalement utilisé les fonctions que nous donne la bibliothèque du jeu pour récupérer les éléments de la carte (sa hauteur, largeur, le nombre d'objet, quel objets est placé en [x;y], est-ce que cet objet est destructible, etc.), ainsi que les appels systèmes permettant l'écriture dans les fichiers. 
+
+Nous avons commencer par creer un fichier nommé arbitrairement "save.map", dans lequel nous avons ensuite inscrit la hauteur et la largeur de la carte, suivit du nombre d'objets différents que l'on va y trouver. Ensuite nous avons ajouter tous les éléments de la carte sous la forme de leur identifiants nulmérique, puis, finalement, nous y avons intégrer les définitions des objets.
+
+\subsection{Chargement}
+En ce qui concerne le chargement nous avons utilisé la méthode oposé au chargement : au lieu d'écrire dans le fichiers les éléments du jeux un par un, on les lit dans le fichier sếcifié, pour on les intègre au jeu grâce aux différentes fonctions qui sont proposé par la bibliothèque du jeu.
+
+
+
+\newpage
+\section{Deuxième partie: Gestion des temporisateurs}
+\end{document}

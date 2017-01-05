@@ -24,7 +24,40 @@ Le système de sauvegarde doit être en mesure de sauvegarder les objets que l'o
 
 Le système de gestion de sauvegarde à pour but d'avoir des informations sur les cartes sauvegardées (connaitre leurs hauteur, largeurs, nombre d'objets différents) ainsi que de faires quelques modifications.
 
-La gestion des temporisateur est utilisé pour pouvoir gerer des éléments du jeu qui sont activé et ont une action diféré dans le jeu (exemple : la bombe se lance et explose deux secondes plus
+La gestion des temporisateur est utilisé pour pouvoir gerer des éléments du jeu qui sont activé et ont une action diféré dans le jeu (exemple : la bombe se lance et explose deux secondes plus)
+
+\newpage
+\section{Première partie: Gestion des Sauvegardes}
+
+\subsection{Sauvegarde}
+Pour la sauvegarde nous avons principalement utilisé les fonctions que nous donne la bibliothèque du jeu pour récupérer les éléments de la carte (sa hauteur, largeur, le nombre d'objet, quel objets est placé en [x;y], est-ce que cet objet est destructible, etc.), ainsi que les appels systèmes permettant l'écriture dans les fichiers. 
+
+Nous avons commencer par creer un fichier nommé arbitrairement "save.map", dans lequel nous avons ensuite inscrit la hauteur et la largeur de la carte, suivit du nombre d'objets différents que l'on va y trouver. Ensuite nous avons ajouter tous les éléments de la carte sous la forme de leur identifiants nulmérique, puis, finalement, nous y avons intégrer les définitions des objets.
+
+\subsection{Chargement}
+En ce qui concerne le chargement nous avons utilisé la méthode oposé au chargement : au lieu d'écrire dans le fichiers les éléments du jeux un par un, on les lit dans le fichier spécifié, pour on les intègre au jeu grâce aux différentes fonctions qui sont proposé par la bibliothèque du jeu.
+
+\subsection{Maputil}
+Maputil est un utilitaire permettant de récuperrer les informations d'une carte depuis son fichier de sauvegarde, ainsi que de modifier certains éléments de la sauvegarde.
+
+\subsubsection{Eléments get}
+Pour les éléments "get" (c'est à dire les options getwidth, getheight, getobjects et getinfo) a programmer, nous avons simplement fait une lecture du fichier, et, avec un jeu de conditions, afficher uniquement les éléments qui nous interessent. Cette partie est donc très similaire au système de chargement du jeu, mis à part qu'on ne fait qu'afficher à l'écran ce qu'on lit, on ne crée pas d'objets utilisables en jeu.
+
+\subsubsection{Elément set}
+Pour les options setwidth et setheight il a fallut voir plusieurs cas de figure. Mais avant tout il faut transformer le fichier de sauvegarde en un fichier temporaire "tmp", puis recreer le fichier de sauvegarde. Dans le nouveau fichier on insère les nouvelles valeurs de largeur et hauteur, ainsi que les informations relatives au objets. Ensuite si la carte est plus grande on ajoute juste des 0 la ou il en manque.
+
+Dans le cas ou la carte est plus petite il n'y a qu'a lire les données et bien faire attention a sauter les données de l'ancienne carte.
+
+On fini par recopier la fin du fichier, puis on supprime le fichier tmp qui ne nous sert plus à rien.
+
+\subsubsection{Remplacement d'objets}
+Pour remplacer les éléments du jeu, on commence par faire la même chose que pour changer la taille, on crée le fichier tmp et on recrée un fichier avec le même bom que la sauvegarde. Ensuite on parcourt le fichier tmp jusqu'a l'endroit ou sont stockés les objets du jeu tout en recopiant les données dans le fichier, puis on insère les données passées en paramètre dans le nouveau fichier.
+
+
+\subsubsection{"Prune Objects"}
+Dans le but d'enlever des objets inutiles de la sauvegarde, il a été demandé d'implémenter une fonction de "prune objects". Pour ce faire il faut parcour la carte en notant tous les objets utilisé dans un tableau. Si par exemple seuls les objets 3 et 5 sont utilisé, le tableau aura la forme suivante : t = {3, 5}.
+
+Une fois que l'on a isolé les objets que l'on utilise de ceux qui sont inutilisés, il suffit de creer un nouveau fichier (la méthode du tmp qu'on a déjà utiliser au dessus), de recopier le fichier jusqu'à ce qu'on arrive à la partie des objets, puis on saute les objets inutilisé, c'est à dire, si les id des objets ne sont pas dans le tableau t, on ne les recopies pas. Etant donné que les objets sont classé par ordre numérique, il suffite de recopier, dans ce cas précis par exemple, le 3eme et le 5eme objet.
 
 
 \newpage
