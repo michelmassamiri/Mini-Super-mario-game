@@ -35,16 +35,7 @@ Pour la sauvegarde nous avons principalement utilisé les fonctions que nous don
 Nous avons commencer par creer un fichier nommé arbitrairement "save.map", dans lequel nous avons ensuite inscrit la hauteur et la largeur de la carte, suivit du nombre d'objets différents que l'on va y trouver. Ensuite nous avons ajouter tous les éléments de la carte sous la forme de leur identifiants nulmérique, puis, finalement, nous y avons intégrer les définitions des objets.
 
 \subsection{Chargement}
-En ce qui concerne le chargement nous avons utilisé la méthode oposé au chargement : au lieu d'écrire dans le fichiers les éléments du jeux un par un, on les lit dans le fichier spécifié, pour on les intègre au jeu grâce aux différentes fonctions qui sont proposé par la bibliothèque du jeu.
-
-\subsection{Maputil}
-Maputil est un utilitaire permettant de récuperrer les informations d'une carte depuis son fichier de sauvegarde, ainsi que de modifier certains éléments de la sauvegarde.
-
-\subsubsection{Eléments get}
-Pour les éléments "get" (c'est à dire les options getwidth, getheight, getobjects et getinfo) a programmer, nous avons simplement fait une lecture du fichier, et, avec un jeu de conditions, afficher uniquement les éléments qui nous interessent. Cette partie est donc très similaire au système de chargement du jeu, mis à part qu'on ne fait qu'afficher à l'écran ce qu'on lit, on ne crée pas d'objets utilisables en jeu.
-
-\subsubsection{Elément set}
-Pour les options setwidth et setheight il a fallut voir plusieurs cas de figure. Mais avant tout il faut transformer le fichier de sauvegarde en un fichier temporaire "tmp", puis recreer le fichier de sauvegarde. Dans le nouveau fichier on insère les nouvelles valeurs de largeur et hauteur, ainsi que les informations relatives au objets. Ensuite si la carte est plus grande on ajoute juste des 0 la ou il en manque.
+En ce qui concerne le chargement nous avons utilisé la méthode oposé au chargement : au lieu d'écrire dans le fichiers les éléments du jeux un par un, on les lit dans le fichier sếcifié, pour on les intègre au jeu grâce aux différentes fonctions qui sont proposé par la bibliothèque du jeu.
 
 
 
