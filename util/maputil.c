@@ -82,6 +82,7 @@ int main(int argc, char * argv[])
 	if(strcmp(argv[2], "--setwidth") || strcmp(argv[2], "--setheight"))
 	{
 		int size = height * width;
+		int oldw = width;
 		int tmp;
 		tmp = atoi(argv[3]);
 		if(strcmp(argv[2], "--setwidth"))
@@ -98,13 +99,22 @@ int main(int argc, char * argv[])
 		write(tmp_file, &nb_obj, sizeof(int));
 		write(tmp_file, &sdl, sizeof(char));
 
-		for(int i  =0; i < height*width; ++i)
+		for(int i  =0; i < height; ++i)
 		{
-			if(i < size)
-			read(file, &objs, sizeof(int));
-			else
-			objs = 0;
-			write(tmp_file, &objs, sizeof(int));
+			for(int j = 0; j < width; ++j)
+			{
+				if(j >= oldw)
+				{
+					for(int k = 0; k < (width-oldw); ++k)
+						read(file, &objs, sizeof(int));
+					continue;
+				}
+				if(i*j < size)
+					read(file, &objs, sizeof(int));
+				else
+					objs = 0;
+				write(tmp_file, &objs, sizeof(int));
+			}
 		}
 
 		while(read(file, &trash, sizeof(char)))
