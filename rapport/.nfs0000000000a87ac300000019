@@ -1,0 +1,21 @@
+\documentclass{report}
+
+\usepackage[latin1]{inputenc}    
+\usepackage[T1]{fontenc}
+\usepackage[francais]{babel}     
+      
+\begin{document}
+\section{Un fort beau chapitre}
+cinq ou six gros paragraphes de faux texte.
+\end{document}
+
+
+\title{Rapport du projet de programmation systeme}
+\date{06/01/2017}
+\author{Demoulins Louis, Massamiri Michel}
+
+\begin{document}
+
+	
+
+\end{document}
