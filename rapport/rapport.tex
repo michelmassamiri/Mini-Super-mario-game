@@ -97,7 +97,8 @@ timer.it_interval.tv_usec = 0 ;
 Et afin d’envoyer le signal SIGALRM au bon moment, une boucle ‘while(delay ≥ 1000)’ était nécessaire. Donc, chaque fois qu’on rentre dans la boucle on souscrit 1000 de ‘delay’, et on incrémente  ‘timer.it_value.tv_sec’ par 1. Au final, ‘timer.it_value.tv_sec’ est égale à ‘delay * 1000’.
 Ce qui nous permet d’envoyer le signal SIGALRM dans le délai passé en paramètre.
 
-Alors pour pouvoir appeler la fonction ‘sdl_push_event’ avec la bonne paramètre ‘param’, on avait ajouté une variable globale dans le fichier source «tempo.c» qui à chaque fois qu’on appelle timer_set, la variable globale ‘PARAM’ sauvegarde la nouvelle valeur de param passée en paramètre dans la fonction timer_set. 
-Ensuite, on appelle l’instruction ‘printf’ dans la fonction traitant avec la variable ‘PARAM’.
+Alors pour pouvoir appeler la fonction ‘sdl_push_event’ avec la bonne paramètre ‘param’, on avait ajouté une variable globale dans le fichier source «tempo.c» qui à chaque fois qu’on appelle timer_set, la variable globale ‘PARAM’ sauvegarde la nouvelle valeur de param passée en paramètre dans la fonction timer_set.
+
+Au final, on appelle l’instruction ‘printf’ dans la fonction traitant avec la variable ‘PARAM’.
 
 \end{document}
