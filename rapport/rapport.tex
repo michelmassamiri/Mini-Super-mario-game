@@ -65,9 +65,9 @@ Une fois que l'on a isolé les objets que l'on utilise de ceux qui sont inutilis
 
 Pour cette partie, on avait travaillé dans le fichier source «tempo.c» qui contient les fonctions: 
 
-‘timer_init’ ayant pour mission, l’initialisation de toutes les variables dont on aura besoin dans la suite, ainsi de créer un ‘thread’ qui doit être le seul thread recevant le signal SIGALRM. 
+‘timer\_init’ ayant pour mission, l’initialisation de toutes les variables dont on aura besoin dans la suite, ainsi de créer un ‘thread’ qui doit être le seul thread recevant le signal SIGALRM. 
 
-‘timer_set’ qui permet d’armer les temporisateurs avec des différents délais.
+‘timer\_set’ qui permet d’armer les temporisateurs avec des différents délais.
 \subsection{Démon récepteur de signaux}
 
 Afin de pouvoir lancer le thread Démon qui devrait être le seul à recevoir SIGALRM, on avait configuré pour cette partie un temporisateur ayant un délai pour deux seconds, ensuite le thread est lancé avec NULL comme des paramètres.
@@ -85,20 +85,41 @@ Dès que Démon reçoit le signal SIGALRM, il appelle la fonction ‘handler’ 
 
 En considérant qu’il n’y a qu’un seul temporisateur armé à tout instant, donc on n’a pas besoin de gérer et de maintenir l’échéancier complet. 
 
-Tout d’abord, dans la fonction ‘timer_set’, on initialise notre temporisateur avec les valeurs:
+Tout d’abord, dans la fonction ‘timer\_set’, on initialise notre temporisateur avec les valeurs:
 
 struct itimerval timer ;
 
-timer.it_value.tv_sec = 0 ;
-timer.it_value.tv_usec = 0 ;
-timer.it_interval.tv_sec = 0 ;
-timer.it_interval.tv_usec = 0 ;
+timer.it\_value.tv\_sec = 0 ;
+timer.it\_value.tv\_usec = 0 ;
+timer.it\_interval.tv\_sec = 0 ;
+timer.it\_interval.tv\_usec = 0 ;
 
-Et afin d’envoyer le signal SIGALRM au bon moment, une boucle ‘while(delay ≥ 1000)’ était nécessaire. Donc, chaque fois qu’on rentre dans la boucle on souscrit 1000 de ‘delay’, et on incrémente  ‘timer.it_value.tv_sec’ par 1. Au final, ‘timer.it_value.tv_sec’ est égale à ‘delay * 1000’.
+Et afin d’envoyer le signal SIGALRM au bon moment, une boucle ‘while(delay ≥ 1000)’ était nécessaire. Donc, chaque fois qu’on rentre dans la boucle on souscrit 1000 de ‘delay’, et on incrémente  ‘timer.it\_value.tv\_sec’ par 1. Au final, ‘timer.it\_value.tv\_sec’ est égale à ‘delay * 1000’.
 Ce qui nous permet d’envoyer le signal SIGALRM dans le délai passé en paramètre.
 
-Alors pour pouvoir appeler la fonction ‘sdl_push_event’ avec la bonne paramètre ‘param’, on avait ajouté une variable globale dans le fichier source «tempo.c» qui à chaque fois qu’on appelle timer_set, la variable globale ‘PARAM’ sauvegarde la nouvelle valeur de param passée en paramètre dans la fonction timer_set.
+Alors pour pouvoir appeler la fonction ‘sdl\_push\_event’ avec la bonne paramètre ‘param’, on avait ajouté une variable globale dans le fichier source «tempo.c» qui à chaque fois qu’on appelle timer\_set, la variable globale ‘PARAM’ sauvegarde la nouvelle valeur de param passée en paramètre dans la fonction timer_set.
 
 Au final, on appelle l’instruction ‘printf’ dans la fonction traitant avec la variable ‘PARAM’.
+
+\subsection{Implémentation complète}
+
+Pour gérer des temporisateurs armés n’importe quand, on avait choisi d’implémenter une liste simplement chaînée tel que chaque élément de la liste est une structure de données contenant la variable ‘param’ ainsi, le moment où on envoie le signal dans l’échéancier, défini comme ‘unsigned long’.
+
+Pour empêcher nos données d’être modifiées par des autres threads, on avait initialisé un ‘mutex’ dans la fonction ‘timer\_init’. Ensuite on bloque la fonction ‘timer\_set’ avec ‘pthread\_mutex\_lock’ et pthread\_mutex\_unlock’.
+
+Notre manière de gérer les temporisateurs consiste à les ajouter dans une liste ordonnée dans l’ordre croissant des moments d’expiration d’exécution. Le temps d’expiration de chaque temporisateur est calculé à l’aide de la fonction fournie ‘get\_time’ en ajoutant le délai du temporisateur.
+
+Donc, à chaque appelle de la fonction ‘timer\_set’ on ajoute un temporisateur dans la liste à l’aide de la fonction ‘add\_to\_list’ qui ordonne les éléments de la liste d’une façon croissante. 
+
+D’une autre façon, à chaque fois qu’un temporisateur se trouve en premier élément de la liste, on délivre un SIGALRM, puis ce dernier est supprimé de la liste à l’aide le fonction ‘remove\_from\_list’.
+
+Lorsque la fonction ‘add\_to\_liste’ se termine, on aura une liste ordonnée selon le temps d’expiration et donc on pourra armer les temporisateurs qui se trouvent dans la liste un par un. 
+Au final, le signal SIGALRM est envoyé au thread, ensuite la fonction traitante va armer le prochain temporisateur qui va envoyer une autre fois un SIGALRM.
+
+\section{Conclustion}
+Pour ce qui concerne la troisième partie, on avait eu un problème avec les lignes en faisant la modification de la taille de la carte. Cependant ce problème a été bien résolu et on avait expliqué dans le fichier source ‘maputil.c’ notre implémentation.
+
+Éventuellement, on avait eu des problèmes dans la section 4.3. En effet, notre implémentation ne marche pas comme on souhaitait. Tout d’abord, on avait des problèmes dans la mémoire ( Erreur de segmentation), et dans cette version actuelle, on n’a plus d’erreurs de la mémoire mais la bombe n’explose pas, ce qui signifie que la délivrance du prochain signal n’a pas été faite.    
+ 
 
 \end{document}
