@@ -96,16 +96,18 @@ void handler(int sig)
   sdl_push_event(TIMER->value->param);
   printf ("sdl_push_event(%p) appelée au temps %ld\n", TIMER->value->param, get_time ());
 
+  timer_list *l = malloc(sizeof(l));
+  l  = TIMER->next;
   remove_from_list(TIMER);
 
 
-  if(TIMER != NULL && TIMER->value != NULL)
+  if(l != NULL && l->value != NULL)
   {
     unsigned long et = TIMER->value->endtime;
     unsigned long ct = get_time();
 
     timer_launch((Uint32)(et-ct)/1000);
-  }
+   }
   pthread_mutex_unlock(&mutex);
 
 
