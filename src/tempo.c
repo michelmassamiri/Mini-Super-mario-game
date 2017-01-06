@@ -34,6 +34,14 @@ static void add_to_list(timer_list *list, timer_for_param *tfp)
   }
   else
   {
+    if(list->value->endtime > tfp->endtime)
+    {
+	    timer_list *newlist = malloc(sizeof(newlist));
+	    newlist->value = tfp;
+	    newlist->next = list;
+	    list = newlist;
+	    return;
+    }
     timer_list *tmp = list;
     while(list->value->endtime < tfp->endtime && list->next != NULL)
       list = list->next;
@@ -121,6 +129,12 @@ void* demon(void *arg)
     sa.sa_handler = handler;
 
     sigaction(SIGALRM, &sa, NULL);
+    for(int i = 0 ; i < NSIG; ++i)
+    {
+	    if(i != SIGALRM) {
+		sigaddset(&sa.sa_mask, i);
+	     }
+    }
 
     while(1)
     {
@@ -134,19 +148,11 @@ void* demon(void *arg)
 // timer_init returns 1 if timers are fully implemented, 0 otherwise
 int timer_init (void)
 {
-  // TODO
   pthread_t tid;
   pthread_mutex_init(&mutex, NULL);
   pthread_mutex_init(&mutex_timer_set, NULL);
   TIMER = malloc(sizeof(TIMER));
   TIMER->value = NULL;
-  //struct itimerval timer;
-
-  //configuer le timer
-  /*timer.it_value.tv_sec = 2;
-  timer.it_value.tv_usec = 0;
-  timer.it_interval.tv_sec = 0;
-  timer.it_interval.tv_usec = 0;*/
 
   //créer le thread
   pthread_create(&tid, NULL, demon, NULL);
@@ -157,15 +163,7 @@ int timer_init (void)
   sigaddset(&mask, SIGALRM);
   sigprocmask(SIG_BLOCK, &mask, NULL);
 
-  /*setitimer(ITIMER_REAL, &timer, NULL);
-  setitimer(ITIMER_REAL, &timer, NULL);
-  setitimer(ITIMER_REAL, &timer, NULL);
-  setitimer(ITIMER_REAL, &timer, NULL);
-  setitimer(ITIMER_REAL, &timer, NULL);*/
-
-  //timer_set(1100, NULL);
-
-  return 1; // Implementation not ready
+  return 1; // Implementation quite ready
 }
 
 void timer_launch(Uint32 delay)
@@ -188,11 +186,6 @@ void timer_launch(Uint32 delay)
 
 void timer_set (Uint32 delay, void *param)
 {
-  // TODO
-
-  //TIMER->value = malloc(sizeof(timer_for_param));
-  //TIMER->value->param = param;
-  //*
   pthread_mutex_lock(&mutex_timer_set);
 
   timer_for_param *t = malloc(sizeof(timer_for_param));
@@ -206,9 +199,7 @@ void timer_set (Uint32 delay, void *param)
 
   timer_launch(d);
   pthread_mutex_unlock(&mutex_timer_set);
-  //*/
-  //timer_launch(delay);
-}
+ }
 
 
 #endif
