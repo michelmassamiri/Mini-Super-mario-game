@@ -10,7 +10,7 @@
 
 #include "timer.h"
 
-pthread_mutex_t mutex;
+pthread_mutex_t mutex, mutex_timer_set;
 
 typedef struct timer_for_param {
   void * param;
@@ -24,56 +24,38 @@ typedef struct timer_list {
 
 } timer_list;
 
-static void add_to_list(timer_list *list, void* param, unsigned long endtime)
+static void add_to_list(timer_list *list, timer_for_param *tfp)
 {
-  pthread_mutex_lock(&mutex);
-  //check if head hasn't been created
-  if (list == NULL) {
-      list = malloc(sizeof(list));
-      if(list == NULL) {
-          printf("Failed to create head node");
-      }
-      list->value = malloc(sizeof(timer_for_param));
-      list->value->param = param;
-      list->value->endtime = endtime;
-      list->next = NULL;
+  //pthread_mutex_lock(&mutex);
+  if(list->value == NULL)
+  {
+    list->value = malloc(sizeof(timer_for_param));
+    list->value = tfp;
   }
   else
   {
-    //create a new node
-    timer_list *newNode;
-    newNode = malloc(sizeof(timer_list));
-    if(newNode == NULL) {
-        printf("Failed to create node");
-    }
-    newNode->value = malloc(sizeof(timer_for_param));
-    newNode->value->param = param;
-    newNode->value->endtime = endtime;
-    newNode->next = NULL;
-
-    //see if new node should be placed before head
-    if (endtime < list->value->endtime) {
-        newNode->next = list;
-    }
-
-    //search through to find correct spot and insert the node
-    else
+    if(list->value->endtime > tfp->endtime)
     {
-      timer_list *temp ,*prev, *first;
-      temp = list;
-      first = list;
-      while(temp != NULL && temp->value->endtime <= endtime) {
-        prev = temp;
-        temp = temp->next;
-      }
-      newNode->next = temp;
-      prev->next = newNode;
-
-      list = first;
+	    timer_list *newlist = malloc(sizeof(newlist));
+	    newlist->value = tfp;
+	    newlist->next = list;
+	    list = newlist;
+	    return;
     }
-  }
+    timer_list *tmp = list;
+    while(list->value->endtime < tfp->endtime && list->next != NULL)
+      list = list->next;
 
-  pthread_mutex_unlock(&mutex);
+    timer_list *tmp2 = malloc(sizeof(tmp2));
+    tmp2->value = malloc(sizeof(timer_for_param));
+
+    tmp2->value = tfp;
+    tmp2->next = list->next;
+    list->next = tmp2;
+
+    list = tmp;
+  }
+  //pthread_mutex_unlock(&mutex);
 }
 
 static void remove_from_list(timer_list *list)
@@ -95,7 +77,7 @@ static void remove_from_list(timer_list *list)
 }
 
 
-timer_list *TIMER = NULL;
+static timer_list *TIMER;
 
 
 void timer_launch(Uint32 delay);
@@ -122,16 +104,18 @@ void handler(int sig)
   sdl_push_event(TIMER->value->param);
   printf ("sdl_push_event(%p) appelée au temps %ld\n", TIMER->value->param, get_time ());
 
+  timer_list *l = malloc(sizeof(l));
+  l  = TIMER->next;
   remove_from_list(TIMER);
 
-  if(TIMER != NULL && TIMER->value != NULL)
+
+  if(l != NULL && l->value != NULL)
   {
     unsigned long et = TIMER->value->endtime;
     unsigned long ct = get_time();
 
     timer_launch((Uint32)(et-ct)/1000);
-  }
-
+   }
   pthread_mutex_unlock(&mutex);
 
 
@@ -145,12 +129,13 @@ void* demon(void *arg)
     sa.sa_handler = handler;
 
     sigaction(SIGALRM, &sa, NULL);
-
-    for(int i = 0 ; i < NSIG; ++i){
-      if(i != SIGALRM) {
-        sigaddset(&sa.sa_mask, i);
-      }
+    for(int i = 0 ; i < NSIG; ++i)
+    {
+	    if(i != SIGALRM) {
+		sigaddset(&sa.sa_mask, i);
+	     }
     }
+
     while(1)
     {
       sigsuspend(&sa.sa_mask); //: le thread va blocker le programe jusqu'a un signal qui n'est pas dans set_of_mask arrive.
@@ -163,17 +148,11 @@ void* demon(void *arg)
 // timer_init returns 1 if timers are fully implemented, 0 otherwise
 int timer_init (void)
 {
-  // TODO
   pthread_t tid;
   pthread_mutex_init(&mutex, NULL);
-
-  //struct itimerval timer;
-
-  //configuer le timer
-  /*timer.it_value.tv_sec = 2;
-  timer.it_value.tv_usec = 0;
-  timer.it_interval.tv_sec = 0;
-  timer.it_interval.tv_usec = 0;*/
+  pthread_mutex_init(&mutex_timer_set, NULL);
+  TIMER = malloc(sizeof(TIMER));
+  TIMER->value = NULL;
 
   //créer le thread
   pthread_create(&tid, NULL, demon, NULL);
@@ -184,15 +163,7 @@ int timer_init (void)
   sigaddset(&mask, SIGALRM);
   sigprocmask(SIG_BLOCK, &mask, NULL);
 
-  /*setitimer(ITIMER_REAL, &timer, NULL);
-  setitimer(ITIMER_REAL, &timer, NULL);
-  setitimer(ITIMER_REAL, &timer, NULL);
-  setitimer(ITIMER_REAL, &timer, NULL);
-  setitimer(ITIMER_REAL, &timer, NULL);*/
-
-  //timer_set(1100, NULL);
-
-  return 1; // Implementation not ready
+  return 1; // Implementation quite ready
 }
 
 void timer_launch(Uint32 delay)
@@ -215,26 +186,20 @@ void timer_launch(Uint32 delay)
 
 void timer_set (Uint32 delay, void *param)
 {
-  // TODO
+  pthread_mutex_lock(&mutex_timer_set);
 
-  //TIMER->value = malloc(sizeof(timer_for_param));
-  //TIMER->value->param = param;
-  //*
+  timer_for_param *t = malloc(sizeof(timer_for_param));
+  t->param = param;
+  t->endtime = get_time() + delay*1000;
 
-  unsigned long endtime = get_time() + delay*1000;
-
-  pthread_mutex_lock(&mutex);
-  add_to_list(TIMER, param, endtime);
-  pthread_mutex_unlock(&mutex);
-
+  add_to_list(TIMER, t);
   unsigned long et = TIMER->value->endtime;
   unsigned long ct = get_time();
   unsigned long d = (et-ct)/1000;
 
   timer_launch(d);
-  //*/
-  //timer_launch(delay);
-}
+  pthread_mutex_unlock(&mutex_timer_set);
+ }
 
 
 #endif
